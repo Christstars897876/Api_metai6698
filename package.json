@@ -1,12 +1,13 @@
 {
   "name": "my-ai-api",
   "version": "1.0.0",
-  "description": "Metoushela — API IA centrale sur Render",
-  "main": "dist/server.js",
+  "description": "Metoushela — API IA centrale sur Render et Vercel",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "tsx watch src/server.ts",
+    "build:agent": "tsc",
     "deploy:agent": "npx @21st-sdk/cli login && npx @21st-sdk/cli deploy"
   },
   "dependencies": {
