@@ -4,7 +4,7 @@ import { AgentClient } from "@21st-sdk/node"
 const app = express()
 app.use(express.json())
 
-// CORS
+// Configuration CORS globale
 app.use((_req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*")
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -52,7 +52,7 @@ app.post("/chat", async (req: Request, res: Response) => {
 
     if (!agentRes.ok) throw new Error(`Agent error: ${agentRes.status} ${agentRes.statusText}`)
 
-    // Streaming SSE
+    // Mode Streaming (SSE)
     if (stream) {
       res.setHeader("Content-Type", "text/event-stream")
       res.setHeader("Cache-Control", "no-cache")
@@ -69,7 +69,7 @@ app.post("/chat", async (req: Request, res: Response) => {
       return res.end()
     }
 
-    // JSON
+    // Mode Standard JSON
     const reader = agentRes.body!.getReader()
     const decoder = new TextDecoder()
     let fullReply = ""
