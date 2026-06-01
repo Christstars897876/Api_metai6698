@@ -3,7 +3,6 @@ import { AgentClient } from "@21st-sdk/node"
 
 const client = new AgentClient({ apiKey: process.env.API_KEY_21ST! })
 
-// ── Middleware auth ────────────────────────────────────────────────────────
 function checkApiKey(req: VercelRequest, res: VercelResponse): boolean {
   const key = req.headers["x-api-key"]
   if (!key || key !== process.env.MY_API_SECRET_KEY) {
@@ -13,9 +12,7 @@ function checkApiKey(req: VercelRequest, res: VercelResponse): boolean {
   return true
 }
 
-// ── Handler principal ──────────────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS — autorise toutes tes apps
   res.setHeader("Access-Control-Allow-Origin", "*")
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key")
@@ -31,12 +28,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Sandbox : réutilise ou crée
     const sandbox = sessionId
       ? { id: sessionId }
       : await client.sandboxes.create({ agent: "my-agent" })
 
-    // Token court-vécu
     const token = await client.tokens.create({ agent: "my-agent" })
 
     const agentRes = await fetch(`${process.env.AGENT_BASE_URL}/chat`, {
@@ -55,13 +50,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw new Error(`Agent error: ${agentRes.status} ${agentRes.statusText}`)
     }
 
-    // ── Mode streaming SSE ─────────────────────────────────────────────────
     if (stream) {
       res.setHeader("Content-Type", "text/event-stream")
       res.setHeader("Cache-Control", "no-cache")
       res.setHeader("Connection", "keep-alive")
 
-      // Envoie d'abord le sessionId
       res.write(`data: ${JSON.stringify({ type: "session", sessionId: sandbox.id })}\n\n`)
 
       const reader = agentRes.body!.getReader()
@@ -77,7 +70,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.end()
     }
 
-    // ── Mode JSON (défaut) ─────────────────────────────────────────────────
     const reader = agentRes.body!.getReader()
     const decoder = new TextDecoder()
     let fullReply = ""
